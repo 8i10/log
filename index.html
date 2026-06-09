@@ -22,13 +22,15 @@
 
   header{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 24px 14px;position:sticky;top:0;z-index:100;}
   .header-inner{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .header-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
   .header-title{font-family:"Noto Serif JP",serif;font-size:20px;letter-spacing:.05em;color:var(--accent);}
   .header-sub{font-size:11px;color:var(--text-muted);margin-top:2px;letter-spacing:.08em;}
   .header-desc{font-size:11px;color:var(--text-muted);margin-top:5px;line-height:1.7;}
-  .header-btns{display:flex;gap:6px;align-items:center;align-self:center;flex-shrink:0;}
-  .add-btn{background:rgba(200,169,126,.12);border:1px solid rgba(200,169,126,.4);color:var(--accent);padding:5px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:background .2s;white-space:nowrap;}
+  .header-title-row{display:flex;align-items:center;gap:10px;}
+  .header-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+  .add-btn{background:rgba(200,169,126,.12);border:1px solid rgba(200,169,126,.4);color:var(--accent);padding:3px 9px;border-radius:6px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:background .2s;white-space:nowrap;}
   .add-btn:hover{background:rgba(200,169,126,.22);}
-  .theme-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:5px 9px;border-radius:8px;cursor:pointer;font-size:15px;transition:all .2s;}
+  .theme-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:3px 7px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .2s;}
   .theme-btn:hover{border-color:var(--accent);color:var(--accent);}
 
   .main{padding:20px 24px 60px;max-width:900px;margin:0 auto;}
@@ -140,8 +142,7 @@
 <header>
   <div class="header-inner">
     <div>
-      <div class="header-title">⛩ 行きたいシナリオ一覧</div>
-      <div class="header-sub">TRPG / CoC6th Want-to-play List</div>
+      <div class="header-title">⛩ 行きたいシナリオ</div>
       <div class="header-desc">オレンジ色は行きたさ強めシナリオ<br>この中に地雷/苦手を踏むシナリオがあればDMとかで教えてください</div>
     </div>
     <div class="header-btns">
