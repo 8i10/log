@@ -90,6 +90,10 @@
     .main{padding:10px 10px 60px;}
     .card-actions{opacity:1;}
   }
+  body:not(.edit-mode) .add-btn,
+  body:not(.edit-mode) #authBar,
+  body:not(.edit-mode) .card-actions { display:none !important; }
+
 </style>
 </head>
 <body class="light">
@@ -154,6 +158,9 @@
 <div class="main" id="mainArea"></div>
 
 <script>
+// ===== 編集モード判定 =====
+const IS_EDIT_MODE = new URLSearchParams(location.search).get('edit') === '1';
+
 // ===== データ =====
 const SCENARIOS_DEFAULT = [
   {id:'1',ninzu:'1PL',name:'そういえば昨日世界が終わりましたね',url:'https://3up.booth.pm/items/4882962',ho:'',memo:'',hot:false},
@@ -328,7 +335,7 @@ function render(){
         :`<span class="card-name">${r.name}</span>`;
       const hoPart=r.ho?`<span class="card-ho">${r.ho}</span>`:'';
       const memoPart=r.memo?`<div class="card-meta">${r.memo}</div>`:'';
-      const editBtn=currentUser?`<div class="card-actions"><button class="edit-btn" onclick="openEditModalIdx(${r._i})">✏️</button></div>`:'';
+      const editBtn=(IS_EDIT_MODE&&currentUser)?`<div class="card-actions"><button class="edit-btn" onclick="openEditModalIdx(${r._i})">✏️</button></div>`:'';
       return `<div class="card${r.hot?' hot':''}">
         <div class="card-body">
           <div class="card-row1">${namePart}${hoPart}</div>${memoPart}
@@ -437,6 +444,7 @@ async function deleteScenario(){
 })();
 
 function updateAuthUI(){
+  if(!IS_EDIT_MODE){ const b=document.getElementById('authBar'); if(b)b.remove(); render(); return; }
   let bar=document.getElementById('authBar');
   if(currentUser){
     if(!bar){
@@ -457,6 +465,7 @@ function updateAuthUI(){
 }
 
 function requireLogin(cb){
+  if(!IS_EDIT_MODE) return;
   if(currentUser){cb();return;}
   loginCallback=cb;
   showLoginForm();
@@ -517,7 +526,24 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){closeEditDirect();closeLoginDirect();document.getElementById('tokenOverlay').classList.remove('open');}
 });
 
+
+// 編集モード時：閲覧用URLボタン
+if (IS_EDIT_MODE) {
+  const hb = document.querySelector('.header-btns');
+  if (hb) {
+    const b = document.createElement('button');
+    b.className = 'add-btn';
+    b.textContent = '🔗 閲覧用URL';
+    b.onclick = () => {
+      const url = location.origin + location.pathname;
+      navigator.clipboard.writeText(url).then(()=>alert('閲覧用URLをコピーしました:\n'+url)).catch(()=>prompt('閲覧用URL', url));
+    };
+    hb.insertBefore(b, hb.firstChild);
+  }
+}
+
 // ===== 初期化 =====
+if (IS_EDIT_MODE) document.body.classList.add('edit-mode');
 loadFromGitHub();
 </script>
 </body>
