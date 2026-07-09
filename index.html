@@ -16,7 +16,7 @@
   --text: #2a2a2e;
   --text-sub: #6b6a70;
   --accent: #8a6d3b;
-  --box-bg: #efeae1;
+  --box-bg: #f4f1ea;
   --shadow: 0 2px 12px rgba(0,0,0,.06);
   --fs: 0.867;
   --font: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
@@ -95,7 +95,7 @@ header .title small { font-weight: 400; color: var(--text-sub); margin-left: 8px
   display: flex; align-items: baseline; gap: 1em;
   padding: 1px 0; font-size: calc(15px * var(--fs)); line-height: 1.5;
 }
-.msg-inline .name { flex: 0 0 calc(135px * var(--fs)); font-weight: 700; text-align: right; white-space: nowrap; overflow: hidden; }
+.msg-inline .name { flex: 0 0 calc(105px * var(--fs)); font-weight: 700; text-align: right; white-space: nowrap; overflow: hidden; }
 .msg-inline .text { flex: 1 1 auto; min-width: 0; word-break: break-word; }
 
 /* non-main tab block (ALL / CUSTOM views) */
@@ -173,7 +173,11 @@ footer {
 
 @media (max-width: 520px) {
   .tab-btn { padding: 9px 12px; min-width: 0; flex: 1; }
-  footer { gap: 8px; }
+  footer { gap: 8px; padding-left: 10px; padding-right: 10px; }
+  header { padding-left: 10px; padding-right: 10px; }
+  .input-panel { padding-left: 10px; padding-right: 10px; }
+  .log-wrap { padding-left: 8px; padding-right: 8px; }
+  .tabbox { margin-left: 14px; }
 }
 </style>
 </head>
@@ -349,12 +353,12 @@ footer {
                '<div class="text">' + m.msgHtml + '</div>' +
              '</div>';
     }
-    // inline: name AND text colored; line breaks removed; auto-shrink names past 9 chars
+    // inline: name AND text colored; line breaks removed; auto-shrink names past 7 chars
     var flat = m.msgHtml.replace(/<br>/g, " ");
     var wem = nameEmWidth(m.nameText);
     var nameStyle = "";
-    if (wem > 9) {
-      nameStyle = ' style="font-size:calc(15px * var(--fs) * ' + (9 / wem).toFixed(3) + ')"';
+    if (wem > 7) {
+      nameStyle = ' style="font-size:calc(15px * var(--fs) * ' + (7 / wem).toFixed(3) + ')"';
     }
     return '<div class="msg-inline"' + colorStyle + '>' +
              '<span class="name"' + nameStyle + '>' + safeName + '</span>' +
