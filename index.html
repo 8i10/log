@@ -1,550 +1,628 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>⛩ 行きたいシナリオ一覧</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ログ成型ツール</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg:#f4f1ec;--surface:#ffffff;--surface2:#f0ece4;
-    --border:#d8d0c4;--accent:#8b6d42;--accent2:#3d6e99;
-    --text:#2a2420;--text-muted:#8a7e72;--r18:#c04040;
-  }
-  body.light{
-    --bg:#f4f1ec;--surface:#ffffff;--surface2:#f0ece4;
-    --border:#d8d0c4;--accent:#8b6d42;--accent2:#3d6e99;
-    --text:#2a2420;--text-muted:#8a7e72;--r18:#c04040;
-  }
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:"Zen Kaku Gothic New",sans-serif;min-height:100vh;}
+:root {
+  --bg: #fdfcfa;
+  --panel: #ffffff;
+  --panel-2: #f0eeeb;
+  --border: #e2ded9;
+  --text: #2a2a2e;
+  --text-sub: #6b6a70;
+  --accent: #8a6d3b;
+  --box-bg: #efeae1;
+  --shadow: 0 2px 12px rgba(0,0,0,.06);
+  --fs: 0.867;
+  --font: "Zen Kaku Gothic New", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+}
+[data-theme="dark"] {
+  --bg: #17171a;
+  --panel: #202024;
+  --panel-2: #26262b;
+  --border: #34343a;
+  --text: #e7e6e3;
+  --text-sub: #9a99a0;
+  --accent: #c8a86a;
+  --box-bg: #1d1d21;
+  --shadow: 0 2px 12px rgba(0,0,0,.4);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
+}
 
-  header{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 24px 14px;position:sticky;top:0;z-index:100;}
-  .header-inner{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
-  .header-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
-  .header-title{font-family:"Noto Serif JP",serif;font-size:20px;letter-spacing:.05em;color:var(--accent);}
-  .header-sub{font-size:11px;color:var(--text-muted);margin-top:2px;letter-spacing:.08em;}
-  .header-desc{font-size:11px;color:var(--text-muted);margin-top:5px;line-height:1.7;}
-  .header-title-row{display:flex;align-items:center;gap:10px;}
-  .header-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
-  .add-btn{background:rgba(200,169,126,.12);border:1px solid rgba(200,169,126,.4);color:var(--accent);padding:3px 9px;border-radius:6px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:background .2s;white-space:nowrap;}
-  .add-btn:hover{background:rgba(200,169,126,.22);}
-  .theme-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:3px 7px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .2s;}
-  .theme-btn:hover{border-color:var(--accent);color:var(--accent);}
+header {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--border);
+}
+header .title { font-weight: 700; font-size: 15px; letter-spacing: .02em; }
+header .title small { font-weight: 400; color: var(--text-sub); margin-left: 8px; font-size: 12px; }
+.menu-btn {
+  border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
+  width: 40px; height: 40px; border-radius: 10px; font-size: 20px; cursor: pointer;
+  display: grid; place-items: center; line-height: 1;
+}
+.menu-btn:hover { background: var(--border); }
 
-  .main{padding:20px 24px 60px;max-width:900px;margin:0 auto;}
+.input-panel { padding: 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+.input-panel.collapsed { display: none; }
+.input-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+.btn {
+  border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
+  padding: 9px 16px; border-radius: 8px; font-family: var(--font); font-size: 14px; cursor: pointer;
+}
+.btn:hover { background: var(--border); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { filter: brightness(1.05); }
+.input-panel textarea {
+  width: 100%; min-height: 120px; resize: vertical; padding: 12px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 12px; line-height: 1.5;
+  transition: border-color .15s, background .15s;
+}
+.input-panel textarea.dragover {
+  border-color: var(--accent);
+  border-style: dashed;
+  background: var(--panel-2);
+}
+.hint { color: var(--text-sub); font-size: 12px; }
 
-  .section{margin-bottom:28px;}
-  .section-title{font-size:14px;font-weight:700;color:var(--accent);letter-spacing:.12em;padding:7px 16px;border-left:4px solid var(--accent);background:rgba(200,169,126,.12);border-radius:0 8px 8px 0;margin-bottom:10px;box-shadow:inset 0 0 0 1px rgba(200,169,126,.15);}
-  .card-list{display:flex;flex-direction:column;gap:6px;}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:flex-start;gap:10px;transition:border-color .15s;}
-  .card:hover{border-color:var(--accent);}
-  .card.hot{border-color:#e8a55a;}
-  .card.hot .card-name{color:#e8820a;}
-  body.light .card.hot .card-name{color:#f07800;}
-  body.light .card.hot{border-color:#e89540;}
-  .card-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:0;}
-  .card-name{font-size:11px;font-weight:600;color:var(--text);text-decoration:none;line-height:1.4;transition:color .15s;cursor:pointer;background:none;border:none;font-family:inherit;text-align:left;padding:0;}
-  .card-name:hover{color:var(--accent);text-decoration:underline;}
-  .card-meta{font-size:10px;color:var(--text-muted);margin-top:2px;line-height:1.5;}
-  .card-meta .ho{color:var(--accent2);}
-  .card-row1{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
-  .card-ho{font-size:10px;color:#0c732b;white-space:nowrap;flex-shrink:0;}
-  .card-actions{flex-shrink:0;opacity:0;transition:opacity .15s;}
-  .card:hover .card-actions{opacity:1;}
-  .edit-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:2px 8px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all .15s;}
-  .edit-btn:hover{border-color:var(--accent);color:var(--accent);}
+.log-wrap { flex: 1 1 auto; overflow-y: auto; padding: 16px 16px 88px; }
+.log { max-width: 820px; margin: 0 auto; }
+.empty { max-width: 820px; margin: 40px auto; text-align: center; color: var(--text-sub); font-size: 14px; line-height: 1.8; }
 
-  /* モーダル共通 */
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
-  .modal-overlay.open{opacity:1;pointer-events:auto;}
-  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto;}
-  .modal-head{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between;}
-  .modal-title{font-size:16px;font-weight:700;color:var(--text);}
-  .modal-close{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:4px;}
-  .modal-body{padding:14px 20px 20px;}
-  .form-group{margin-bottom:12px;}
-  .form-label{display:block;font-size:11px;color:var(--text-muted);letter-spacing:.06em;margin-bottom:4px;}
-  .form-input,.form-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;outline:none;transition:border-color .2s;box-sizing:border-box;-webkit-appearance:none;appearance:none;}
-  .form-input:focus,.form-textarea:focus{border-color:var(--accent);}
-  .form-textarea{min-height:60px;resize:vertical;}
-  .form-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
-  .btn-save{background:rgba(200,169,126,.15);border:1px solid var(--accent);color:var(--accent);padding:8px 20px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s;}
-  .btn-save:hover{background:rgba(200,169,126,.28);}
-  .btn-cancel{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:8px 16px;border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;}
-  .btn-cancel:hover{background:var(--border);}
-  .btn-delete{background:rgba(200,126,126,.1);border:1px solid rgba(200,126,126,.4);color:var(--r18);padding:8px 16px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;margin-right:auto;}
-  .btn-delete:hover{background:rgba(200,126,126,.22);}
+/* mode A: ccfolia chat style */
+.msg-chat { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.msg-chat .name { font-weight: 700; font-size: calc(14px * var(--fs)); margin-bottom: 3px; }
+.msg-chat .text { font-size: calc(15px * var(--fs)); line-height: 1.75; white-space: pre-wrap; word-break: break-word; color: var(--text); }
 
-  /* ローディング */
-  #loadingBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(200,169,126,.15);backdrop-filter:blur(4px);padding:8px;justify-content:center;align-items:center;gap:8px;font-size:13px;color:var(--accent);border-bottom:1px solid var(--border);}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .spin{animation:spin 1s linear infinite;display:inline-block;}
+/* mode B: name + text inline (line breaks removed, tight spacing, aligned text start) */
+.msg-inline {
+  display: flex; align-items: baseline; gap: 1em;
+  padding: 1px 0; font-size: calc(15px * var(--fs)); line-height: 1.5;
+}
+.msg-inline .name { flex: 0 0 calc(135px * var(--fs)); font-weight: 700; text-align: right; white-space: nowrap; overflow: hidden; }
+.msg-inline .text { flex: 1 1 auto; min-width: 0; word-break: break-word; }
 
-  /* スマホ */
-  @media(max-width:640px){
-    header{padding:12px;}
-    .header-title{font-size:16px;}
-    .header-sub{display:none;}
-    .main{padding:10px 10px 60px;}
-    .card-actions{opacity:1;}
-  }
-  body:not(.edit-mode) .add-btn,
-  body:not(.edit-mode) #authBar,
-  body:not(.edit-mode) .card-actions { display:none !important; }
+/* non-main tab block (ALL / CUSTOM views) */
+.tabbox {
+  margin: 8px 0 8px 26px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--box-bg);
+  padding: 6px 12px 8px;
+}
+.tabbox .tabbox-head {
+  font-size: calc(12px * var(--fs)); font-weight: 700; color: var(--text-sub);
+  letter-spacing: .03em; margin-bottom: 4px;
+  border-bottom: 1px dashed var(--border); padding-bottom: 4px;
+}
+.tabbox .msg-chat:last-child { border-bottom: none; padding-bottom: 0; }
+.tabbox .msg-inline:last-child { border-bottom: none; }
 
+footer {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 25;
+  display: flex; gap: 6px; padding: 10px 16px;
+  background: var(--panel); border-top: 1px solid var(--border); justify-content: center;
+}
+.tab-btn {
+  border: 1px solid var(--border); background: var(--panel-2); color: var(--text-sub);
+  padding: 9px 22px; border-radius: 999px; font-family: var(--font);
+  font-size: 14px; font-weight: 500; cursor: pointer; min-width: 92px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 40;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.overlay.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(340px, 86vw);
+  background: var(--panel); border-left: 1px solid var(--border); z-index: 50;
+  transform: translateX(100%); transition: transform .24s ease;
+  display: flex; flex-direction: column; box-shadow: var(--shadow);
+}
+.drawer.open { transform: translateX(0); }
+.drawer-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px; border-bottom: 1px solid var(--border); font-weight: 700;
+}
+.drawer-body { overflow-y: auto; padding: 8px 16px 24px; }
+.close-x { border: none; background: transparent; color: var(--text); font-size: 22px; cursor: pointer; width: 32px; height: 32px; line-height: 1; }
+.section { padding: 16px 0; border-bottom: 1px solid var(--border); }
+.section:last-child { border-bottom: none; }
+.section h3 { margin: 0 0 12px; font-size: 12px; letter-spacing: .06em; color: var(--text-sub); font-weight: 700; }
+
+.seg { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.seg button { flex: 1; border: none; background: var(--panel-2); color: var(--text-sub); padding: 10px 8px; font-family: var(--font); font-size: 13px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.active { background: var(--accent); color: #fff; }
+
+.block-btn {
+  width: 100%; border: 1px solid var(--accent); background: var(--accent); color: #fff;
+  padding: 11px; border-radius: 10px; font-family: var(--font); font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.block-btn:hover { filter: brightness(1.05); }
+.block-btn:disabled { opacity: .5; cursor: not-allowed; }
+.block-note { margin: 8px 0 0; font-size: 12px; color: var(--text-sub); line-height: 1.6; }
+
+.check-list { display: flex; flex-direction: column; gap: 2px; max-height: 320px; overflow-y: auto; }
+.check-item { display: flex; align-items: center; gap: 10px; padding: 8px 6px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.check-item:hover { background: var(--panel-2); }
+.check-item input { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; }
+.check-item .count { margin-left: auto; color: var(--text-sub); font-size: 12px; }
+.mini-actions { display: flex; gap: 8px; margin-bottom: 10px; }
+.mini-actions button { border: 1px solid var(--border); background: var(--panel-2); color: var(--text-sub); padding: 5px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: var(--font); }
+.mini-actions button:hover { color: var(--text); }
+
+@media (max-width: 520px) {
+  .tab-btn { padding: 9px 12px; min-width: 0; flex: 1; }
+  footer { gap: 8px; }
+}
 </style>
 </head>
-<body class="light">
-
-<div id="loadingBanner"><span class="spin">⏳</span> 同期中…</div>
-
-<!-- ログインモーダル -->
-<div class="modal-overlay" id="loginOverlay" onclick="if(event.target===this)closeLoginDirect()">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="loginModalTitle">ログイン</div>
-      <button class="modal-close" onclick="closeLoginDirect()">✕</button>
-    </div>
-    <div class="modal-body" id="loginBody"></div>
-  </div>
-</div>
-
-<!-- 編集/追加モーダル -->
-<div class="modal-overlay" id="editOverlay" onclick="if(event.target===this)closeEditDirect()">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="editModalTitle">シナリオを追加</div>
-      <button class="modal-close" onclick="closeEditDirect()">✕</button>
-    </div>
-    <div class="modal-body" id="editForm"></div>
-  </div>
-</div>
-
-<!-- トークン設定モーダル -->
-<div class="modal-overlay" id="tokenOverlay" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title">GitHub Token設定</div>
-      <button class="modal-close" onclick="document.getElementById('tokenOverlay').classList.remove('open')">✕</button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Personal Access Token（repo権限）を入力してください。このデバイスのみに保存されます。</p>
-      <div class="form-group">
-        <label class="form-label">GitHub Token</label>
-        <input class="form-input" id="tokenInput" type="password" placeholder="ghp_xxxxxxxxxxxx">
-      </div>
-      <div class="form-actions">
-        <button class="btn-cancel" onclick="document.getElementById('tokenOverlay').classList.remove('open')">キャンセル</button>
-        <button class="btn-save" onclick="saveToken()">保存</button>
-      </div>
-    </div>
-  </div>
-</div>
-
+<body>
 <header>
-  <div class="header-inner">
-    <div>
-      <div class="header-title">⛩ 行きたいシナリオ</div>
-      <div class="header-desc">オレンジ色は行きたさ強めシナリオ<br>この中に地雷/苦手を踏むシナリオがあればDMとかで教えてください</div>
-    </div>
-    <div class="header-btns">
-      <button class="add-btn" onclick="openAddModal()">＋ 追加</button>
-    </div>
-  </div>
+  <div class="title" id="appTitle">ログ成型ツール<small>ccfolia / Tekey</small></div>
+  <button class="menu-btn" id="menuBtn" aria-label="メニュー">≡</button>
 </header>
 
-<div class="main" id="mainArea"></div>
-
-<script>
-// ===== 編集モード判定 =====
-const IS_EDIT_MODE = new URLSearchParams(location.search).get('edit') === '1';
-
-// ===== データ =====
-const SCENARIOS_DEFAULT = [
-  {id:'1',ninzu:'1PL',name:'そういえば昨日世界が終わりましたね',url:'https://3up.booth.pm/items/4882962',ho:'',memo:'',hot:false},
-  {id:'2',ninzu:'1PL',name:'紅燈の鬼',url:'https://booth.pm/ja/items/4841458',ho:'',memo:'',hot:false},
-  {id:'3',ninzu:'1PL',name:'刃牢の鬼嫁',url:'https://booth.pm/ja/items/5925981',ho:'',memo:'',hot:false},
-  {id:'4',ninzu:'1PL',name:'躾けてごらんよご主人様',url:'https://booth.pm/ja/items/8182714',ho:'',memo:'',hot:true},
-  {id:'5',ninzu:'1PL',name:'ミッドナイト・オーナレス・ハウンズ',url:'https://booth.pm/ja/items/8071231',ho:'',memo:'└トワイライト・ハウンズ・オーダレス',hot:true},
-  {id:'6',ninzu:'1PL',name:'孕わば骨まで',url:'https://hamo.booth.pm/items/3320002',ho:'',memo:'',hot:false},
-  {id:'7',ninzu:'1PL',name:'揃いの屑',url:'https://raveparty.booth.pm/items/5058061',ho:'',memo:'',hot:false},
-  {id:'8',ninzu:'1PL',name:'屑と純情',url:'https://utyuhebi.booth.pm/items/6830654',ho:'',memo:'',hot:false},
-  {id:'9',ninzu:'1PL',name:'パラダイスキップ',url:'https://booth.pm/ja/items/5255971',ho:'',memo:'',hot:false},
-  {id:'10',ninzu:'1PL',name:'契り千切られ桜下に穢れ',url:'https://booth.pm/ja/items/8298124',ho:'',memo:'',hot:false},
-  {id:'11',ninzu:'1PL',name:'その容貌に果てを見る',url:'https://booth.pm/ja/items/5896850',ho:'',memo:'',hot:false},
-  {id:'12',ninzu:'1PL',name:'現の盃',url:'https://booth.pm/ja/items/3804534',ho:'',memo:'6版改変可なら',hot:false},
-  {id:'13',ninzu:'1PL',name:'Psychothéke',url:'https://booth.pm/ja/items/6946053',ho:'',memo:'',hot:false},
-  {id:'14',ninzu:'1PL',name:'砂城の王',url:'https://booth.pm/ja/items/6265573',ho:'',memo:'',hot:false},
-  {id:'15',ninzu:'1PL',name:'戯曲 オムファロス',url:'https://booth.pm/ja/items/6932691',ho:'',memo:'',hot:false},
-  {id:'16',ninzu:'1PL',name:'メサイア',url:'https://theater-anemone.booth.pm/items/5343238',ho:'',memo:'',hot:false},
-  {id:'17',ninzu:'1PL',name:'紫煙の毒を喫する',url:'https://booth.pm/ja/items/7461576',ho:'',memo:'',hot:false},
-  {id:'18',ninzu:'1PL',name:'たとえ終わりに仇となろうと',url:'https://booth.pm/ja/items/7206465',ho:'',memo:'',hot:false},
-  {id:'19',ninzu:'2PL',name:'百花魁星',url:'https://kanihaoisii.booth.pm/items/6502328',ho:'',memo:'',hot:false},
-  {id:'20',ninzu:'2PL',name:'怪祓─カイブツ─',url:'https://booth.pm/ja/items/7536096',ho:'',memo:'',hot:false},
-  {id:'21',ninzu:'2PL',name:'By Blood, By Blade',url:'https://booth.pm/ja/items/7526798',ho:'',memo:'',hot:false},
-  {id:'22',ninzu:'2PL',name:'Give・Myth・Chimaera',url:'https://booth.pm/ja/items/5488987',ho:'',memo:'',hot:false},
-  {id:'23',ninzu:'2PL',name:'嵐で一杯',url:'',ho:'',memo:'',hot:false},
-  {id:'24',ninzu:'2PL',name:'契れぬ鴆',url:'https://booth.pm/ja/items/4946057',ho:'HO2',memo:'',hot:false},
-  {id:'25',ninzu:'2PL',name:'リコレクションレコード',url:'https://booth.pm/ja/items/3991364',ho:'HO2',memo:'',hot:false},
-  {id:'26',ninzu:'2PL',name:'リ：カース・ドリーマーズ',url:'https://komekamitrpg.booth.pm/items/7580162',ho:'HO1',memo:'',hot:false},
-  {id:'27',ninzu:'2PL',name:'蒼天と狐火',url:'https://booth.pm/ja/items/8233735',ho:'',memo:'',hot:true},
-  {id:'28',ninzu:'2PL',name:'S∀NITY CR∀CK DOWN',url:'https://sansasaaaan.booth.pm/items/8416442',ho:'',memo:'',hot:true},
-  {id:'29',ninzu:'2PL',name:'𝟱𝗬𝗡𝗗𝗜𝗖',url:'https://norinorijoutokai.booth.pm/items/8297502',ho:'',memo:'',hot:true},
-  {id:'30',ninzu:'2PL',name:'アベリアの町',url:'https://booth.pm/ja/items/3061548',ho:'HO本の虫',memo:'※2周目 └相方募集',hot:false},
-  {id:'31',ninzu:'2PL',name:'CARPE DIEM AMICA MEA',url:'https://booth.pm/ja/items/6783927',ho:'HO古物商',memo:'└相方募集',hot:false},
-  {id:'32',ninzu:'2PL',name:'晦むムーンレイル',url:'https://booth.pm/ja/items/3421148',ho:'',memo:'',hot:false},
-  {id:'33',ninzu:'2PL',name:'ラプラスの黙示録',url:'https://booth.pm/ja/items/6207638',ho:'',memo:'',hot:false},
-  {id:'34',ninzu:'2PL',name:'オルタナティヴダブル',url:'https://booth.pm/ja/items/3277629',ho:'',memo:'',hot:false},
-  {id:'35',ninzu:'2PL',name:'愛哀鬼帰',url:'',ho:'',memo:'',hot:false},
-  {id:'36',ninzu:'2PL',name:'喪服と花束',url:'https://booth.pm/ja/items/7182529',ho:'',memo:'',hot:false},
-  {id:'37',ninzu:'2PL',name:'トウキョウカイブツ奇譚',url:'',ho:'',memo:'',hot:false},
-  {id:'38',ninzu:'2PL',name:'絵花屋の二匹',url:'https://booth.pm/ja/items/6026147',ho:'',memo:'',hot:false},
-  {id:'39',ninzu:'2PL',name:'祓人-ハライビト',url:'https://booth.pm/ja/items/4367655',ho:'',memo:'',hot:false},
-  {id:'40',ninzu:'2PL',name:'アルカイリス',url:'https://booth.pm/ja/items/5863128',ho:'',memo:'',hot:false},
-  {id:'41',ninzu:'2PL',name:'ファウストとショコラ',url:'https://booth.pm/ja/items/3679584',ho:'',memo:'',hot:false},
-  {id:'42',ninzu:'2PL',name:'キルユー！ラブユー！',url:'',ho:'',memo:'',hot:false},
-  {id:'43',ninzu:'2PL',name:'DERIVED',url:'https://bisyokutei.booth.pm/items/4291191',ho:'',memo:'タイマンでも可',hot:false},
-  {id:'44',ninzu:'2PL',name:'悪鬼羅刹と夜を駆けて',url:'https://booth.pm/ja/items/4533972',ho:'',memo:'',hot:false},
-  {id:'45',ninzu:'2PL',name:'祓八卦屋怪異録',url:'https://booth.pm/ja/items/5426888',ho:'',memo:'タイマンでも可',hot:false},
-  {id:'46',ninzu:'2PL',name:'マッチングアプリで出会った相手が殺人鬼だったんだけど(以下略)',url:'https://booth.pm/ja/items/5897616',ho:'',memo:'',hot:false},
-  {id:'47',ninzu:'2PL',name:'ひぐらし怪異探偵社',url:'https://booth.pm/ja/items/5370600',ho:'',memo:'',hot:false},
-  {id:'48',ninzu:'2PL',name:'刀狂双乱',url:'https://booth.pm/ja/items/4353272',ho:'',memo:'',hot:false},
-  {id:'49',ninzu:'2PL',name:'妖魔見廻警備隊',url:'https://booth.pm/ja/items/5441210',ho:'',memo:'',hot:false},
-  {id:'50',ninzu:'2PL',name:'告/解',url:'https://booth.pm/ja/items/6083571',ho:'',memo:'',hot:false},
-  {id:'51',ninzu:'2PL',name:'無敵の瞳',url:'https://booth.pm/ja/items/3910047',ho:'',memo:'',hot:false},
-  {id:'52',ninzu:'3PL',name:'怪士係',url:'https://booth.pm/ja/items/4913866',ho:'',memo:'',hot:false},
-  {id:'53',ninzu:'3PL',name:'1945 -RAGNAROC-',url:'',ho:'',memo:'',hot:false},
-  {id:'54',ninzu:'3PL',name:'春追いし、花たちは。',url:'https://booth.pm/ja/items/5248880',ho:'',memo:'',hot:false},
-  {id:'55',ninzu:'3PL',name:'思想犯',url:'https://booth.pm/ja/items/3421358',ho:'',memo:'',hot:false},
-  {id:'56',ninzu:'3PL',name:'虚ろ誕りのデストラクション',url:'https://booth.pm/ja/items/6719006',ho:'',memo:'',hot:false},
-  {id:'57',ninzu:'3PL',name:'最大幸福のパラドックス',url:'https://booth.pm/ja/items/7408996',ho:'HO1or3',memo:'',hot:false},
-  {id:'58',ninzu:'4PL',name:'ハッピーエンド・ヒウマノイズ',url:'https://booth.pm/ja/items/5222327',ho:'',memo:'',hot:false},
-  {id:'59',ninzu:'4PL',name:'MAM-ＦＢＩ神話分析対策課-',url:'https://booth.pm/ja/items/3212660',ho:'',memo:'※全編回していただける方',hot:false},
-  {id:'60',ninzu:'4PL',name:'神話奇譚',url:'https://booth.pm/ja/items/7208766',ho:'',memo:'',hot:false},
-  {id:'61',ninzu:'4PL',name:'祓い屋ミスマル',url:'https://booth.pm/ja/items/6627061',ho:'',memo:'',hot:false},
-  {id:'62',ninzu:'4PL',name:'渡る世間は殺人鬼ばかり',url:'https://booth.pm/ja/items/3255053',ho:'',memo:'',hot:false},
-  {id:'63',ninzu:'4PL',name:'サタデーナイトスクワッド',url:'https://booth.pm/ja/items/6728197',ho:'',memo:'',hot:false},
-  {id:'64',ninzu:'4PL',name:'赫焔',url:'https://kimagurejidaraku.booth.pm/items/7560115',ho:'',memo:'',hot:false},
-  {id:'65',ninzu:'4PL',name:'警視庁刑事部 犯罪捜査第参〇壱課',url:'https://booth.pm/ja/items/4833096',ho:'',memo:'',hot:false},
-  {id:'66',ninzu:'4PL',name:'死季の亡霊達',url:'https://booth.pm/ja/items/6805820',ho:'HO3',memo:'',hot:false},
-  {id:'67',ninzu:'4PL',name:'神話性レゾンデートル',url:'https://booth.pm/ja/items/4475805',ho:'',memo:'',hot:false},
-  {id:'68',ninzu:'4PL',name:'起承転結',url:'https://tmtmpmpm.booth.pm/items/6421856',ho:'',memo:'',hot:false},
-  {id:'69',ninzu:'4PL',name:'東京ゴーストマティカ',url:'https://booth.pm/ja/items/4264686',ho:'HO1',memo:'',hot:false},
-  {id:'70',ninzu:'4PL',name:'愛々累々',url:'https://booth.pm/ja/items/5990633',ho:'HO1',memo:'',hot:false},
-  {id:'71',ninzu:'4PL',name:'蠱毒独歩',url:'https://booth.pm/ja/items/5218106',ho:'HO1or4',memo:'',hot:false},
-  {id:'72',ninzu:'4PL',name:'災匣シリーズ',url:'https://booth.pm/ja/items/4920449',ho:'',memo:'フィクサーと災演｜醒誕/災誕｜幽世常世の満天下｜イカロスの忠堰',hot:false},
-  {id:'73',ninzu:'4PL',name:'魔が時に鵺の鳴く',url:'https://booth.pm/ja/items/3471875',ho:'HO2',memo:'┗続編出たら続編と一緒に行きたい',hot:false},
-  {id:'74',ninzu:'4PL',name:'アポカリプスの天秤',url:'https://booth.pm/ja/items/3422503',ho:'',memo:'',hot:false},
-  {id:'75',ninzu:'4PL',name:'BLIND/JUSTICE',url:'https://booth.pm/ja/items/4300763',ho:'',memo:'',hot:false},
-  {id:'76',ninzu:'4PL',name:'地獄門討伐対策機関-GGSA-',url:'https://booth.pm/ja/items/3984718',ho:'',memo:'',hot:false},
-  {id:'77',ninzu:'4PL',name:'鬼芒',url:'https://booth.pm/ja/items/6615038',ho:'',memo:'',hot:false},
-  {id:'78',ninzu:'4PL',name:'伍戒',url:'https://booth.pm/ja/items/4186041',ho:'',memo:'',hot:false},
-  {id:'79',ninzu:'4PL',name:'悪華の観戦',url:'https://booth.pm/ja/items/3421423',ho:'',memo:'',hot:false},
-  {id:'80',ninzu:'4PL',name:'cRocK',url:'https://booth.pm/ja/items/6259364',ho:'',memo:'',hot:false},
-  {id:'81',ninzu:'4PL',name:'百奇夜仰',url:'https://booth.pm/ja/items/5248150',ho:'',memo:'',hot:false},
-  {id:'82',ninzu:'4PL',name:'偶像は四季に祈る',url:'https://booth.pm/ja/items/3679555',ho:'',memo:'',hot:false},
-  {id:'83',ninzu:'4PL',name:'變貌',url:'https://booth.pm/ja/items/8124616',ho:'HO2',memo:'地雷と相談',hot:false},
-  {id:'84',ninzu:'4PL',name:'魎 もののけ',url:'https://booth.pm/ja/items/7336413',ho:'',memo:'6版で行けるなら',hot:false},
-  {id:'85',ninzu:'4PL',name:'異端蛇説',url:'',ho:'',memo:'・出たら',hot:false},
-  {id:'86',ninzu:'4PL',name:'葬鯨',url:'https://x.com/Now_loading_TM/status/1977674673434341733',ho:'',memo:'・出たら',hot:false},
-  {id:'87',ninzu:'5PL以上',name:'ラプラスの探求者達',url:'https://booth.pm/ja/items/5337593',ho:'',memo:'',hot:false},
-  {id:'88',ninzu:'5PL以上',name:'神と悪魔のおまじない',url:'https://booth.pm/ja/items/5761709',ho:'',memo:'',hot:false},
-  {id:'89',ninzu:'5PL以上',name:'Ⅶ・peccata',url:'https://booth.pm/ja/items/4470662',ho:'HO憤怒or強欲',memo:'',hot:false},
-  {id:'90',ninzu:'5PL以上',name:'KUZERO-クゼロ',url:'',ho:'',memo:'・出たら',hot:false},
-  {id:'91',ninzu:'複数人',name:'九頭龍の断頭台',url:'https://booth.pm/ja/items/7483277',ho:'',memo:'',hot:false},
-];
-
-const NINZU_ORDER = ['1PL','タイマン','タイマンor2PL','2PL','3PL','4PL','5PL以上','複数人'];
-const GH_REPO    = '8i10/kp-scenario';
-const GH_BRANCH  = 'main';
-const GH_FILE    = 'yukitai.json';
-const GH_API     = 'https://api.github.com/repos/' + GH_REPO + '/contents/' + GH_FILE;
-const GH_TOKEN_KEY = 'gh_token_v1';
-const SESS_KEY   = 'trpg_session_v2';
-const ALLOWED_EMAIL = 'cracktrackxxxx@gmail.com';
-const PASS_KEY   = 'trpg_pass_v2';
-
-let DATA = [...SCENARIOS_DEFAULT];
-let currentUser = null;
-let editingIdx = null;
-let loginCallback = null;
-
-function getGHToken(){ return localStorage.getItem(GH_TOKEN_KEY)||''; }
-function saveGHToken(t){ localStorage.setItem(GH_TOKEN_KEY,t); }
-function ghHeaders(token){ return {'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'}; }
-function getSession(){ try{return JSON.parse(localStorage.getItem(SESS_KEY)||'null');}catch{return null;} }
-function saveSession(s){ localStorage.setItem(SESS_KEY,JSON.stringify(s)); }
-async function hashPass(str){ const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str+'trpg_salt_9x')); return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-function getSavedHash(){ return localStorage.getItem(PASS_KEY)||null; }
-function savePassHash(h){ localStorage.setItem(PASS_KEY,h); }
-function showLoading(on){ document.getElementById('loadingBanner').style.display=on?'flex':'none'; }
-
-
-// ===== GitHub API =====
-async function getFileSha(token){
-  const res=await fetch(GH_API+'?t='+Date.now(),{headers:ghHeaders(token)});
-  if(res.status===404) return null;
-  return (await res.json()).sha||null;
-}
-async function apiGet(){
-  const token=getGHToken();
-  const headers=token?ghHeaders(token):{'Accept':'application/vnd.github.v3+json'};
-  const res=await fetch(GH_API+'?t='+Date.now(),{headers});
-  if(!res.ok) return null;
-  const json=await res.json();
-  return JSON.parse(decodeURIComponent(escape(atob(json.content.replace(/\n/g,'')))));
-}
-async function apiSave(newData){
-  const token=getGHToken();
-  if(!token) throw new Error('トークン未設定');
-  const sha=await getFileSha(token);
-  const body={message:'Update yukitai.json',content:btoa(unescape(encodeURIComponent(JSON.stringify(newData,null,2)))),branch:GH_BRANCH};
-  if(sha) body.sha=sha;
-  const res=await fetch(GH_API,{method:'PUT',headers:ghHeaders(token),body:JSON.stringify(body)});
-  if(!res.ok){const e=await res.json();throw new Error(e.message||'GitHub API error');}
-  return await res.json();
-}
-async function loadFromGitHub(){
-  showLoading(true);
-  try{
-    const rows=await apiGet();
-    if(Array.isArray(rows)) DATA=rows;
-  }catch(e){ console.warn('取得失敗:',e); }
-  showLoading(false);
-  render();
-}
-
-// ===== 描画 =====
-function render(){
-  const area=document.getElementById('mainArea');
-  const groups={};
-  DATA.forEach((r,i)=>{
-    if(!groups[r.ninzu]) groups[r.ninzu]=[];
-    groups[r.ninzu].push({...r,_i:i});
-  });
-  Object.keys(groups).forEach(n=>{ groups[n].sort((a,b)=>(b.hot?1:0)-(a.hot?1:0)); });
-  const order=NINZU_ORDER.filter(n=>groups[n]);
-  Object.keys(groups).forEach(n=>{if(!order.includes(n))order.push(n);});
-  if(!order.length){area.innerHTML='';return;}
-  area.innerHTML=order.map(ninzu=>{
-    const items=groups[ninzu].map(r=>{
-      const namePart=r.url
-        ?`<a class="card-name" href="${r.url}" target="_blank" rel="noopener">${r.name}</a>`
-        :`<span class="card-name">${r.name}</span>`;
-      const hoPart=r.ho?`<span class="card-ho">${r.ho}</span>`:'';
-      const memoPart=r.memo?`<div class="card-meta">${r.memo}</div>`:'';
-      const editBtn=(IS_EDIT_MODE&&currentUser)?`<div class="card-actions"><button class="edit-btn" onclick="openEditModalIdx(${r._i})">✏️</button></div>`:'';
-      return `<div class="card${r.hot?' hot':''}">
-        <div class="card-body">
-          <div class="card-row1">${namePart}${hoPart}</div>${memoPart}
-        </div>
-        ${editBtn}
-      </div>`;
-    }).join('');
-    return `<div class="section"><div class="section-title">${ninzu}</div><div class="card-list">${items}</div></div>`;
-  }).join('');
-}
-
-// ===== フォーム =====
-function buildForm(row){
-  const f=v=>(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-  const ninzuList=['1PL','タイマン','タイマンor2PL','2PL','3PL','4PL','5PL以上','複数人'];
-  const ninzuOpts=ninzuList.map(v=>`<option value="${v}"${(row.ninzu||'')==v?' selected':''}>${v}</option>`).join('');
-  const delBtn=editingIdx!==null?'<button class="btn-delete" onclick="deleteScenario()">🗑 削除</button>':'';
-  return `
-  <div class="form-group">
-    <label class="form-label">シナリオ名 *</label>
-    <input class="form-input" id="f_name" value="${f(row.name)}" placeholder="シナリオ名">
-  </div>
-  <div class="form-group">
-    <label class="form-label">人数</label>
-    <select class="form-input" id="f_ninzu" style="appearance:none;-webkit-appearance:none;cursor:pointer">${ninzuOpts}</select>
-  </div>
-  <div class="form-group">
-    <label class="form-label">シナリオURL</label>
-    <input class="form-input" id="f_url" value="${f(row.url)}" placeholder="https://...">
-  </div>
-  <div class="form-group">
-    <label class="form-label">希望HO</label>
-    <input class="form-input" id="f_ho" value="${f(row.ho)}" placeholder="HO1 / HO探偵 など">
-  </div>
-  <div class="form-group">
-    <label class="form-label">メモ</label>
-    <textarea class="form-textarea" id="f_memo">${f(row.memo)}</textarea>
-  </div>
-  <div class="form-group">
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-      <input type="checkbox" id="f_hot" ${row.hot?'checked':''} style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">
-      <span>行きたさ強め（カードをオレンジに）</span>
+<section class="input-panel" id="inputPanel">
+  <div class="input-row">
+    <label class="btn">
+      ログファイルを開く
+      <input type="file" id="fileInput" accept=".html,.htm,.txt" hidden />
     </label>
+    <button class="btn btn-primary" id="formatBtn">成型する</button>
+    <button class="btn" id="clearBtn">クリア</button>
+    <span class="hint" id="statusHint">成型前ログを貼り付け、またはここへファイルをドラッグ＆ドロップしてください。</span>
   </div>
-  <div class="form-actions">
-    ${delBtn}
-    <button class="btn-cancel" onclick="closeEditDirect()">キャンセル</button>
-    <button class="btn-save" onclick="saveScenario()">保存</button>
-  </div>`;
-}
+  <textarea id="rawInput" placeholder="ここに成型前ログ（HTML）を貼り付け／ファイルをドラッグ＆ドロップ…" spellcheck="false"></textarea>
+</section>
 
-function openAddModal(){
-  editingIdx=null;
-  document.getElementById('editModalTitle').textContent='シナリオを追加';
-  document.getElementById('editForm').innerHTML=buildForm({ninzu:'2PL',name:'',url:'',ho:'',memo:'',hot:false});
-  document.getElementById('editOverlay').classList.add('open');
-}
-function openEditModalIdx(i){
-  editingIdx=i;
-  document.getElementById('editModalTitle').textContent='編集：'+DATA[i].name;
-  document.getElementById('editForm').innerHTML=buildForm(DATA[i]);
-  document.getElementById('editOverlay').classList.add('open');
-}
-function closeEditDirect(){ document.getElementById('editOverlay').classList.remove('open'); }
+<div class="log-wrap" id="logWrap">
+  <div class="empty" id="emptyState">
+    ログを読み込むと、ここに成型結果が表示されます。<br />
+    下のタブで表示範囲、右上「≡」で表示形式・テーマ・保存などを切り替えできます。
+  </div>
+  <div class="log" id="log"></div>
+</div>
 
-async function saveScenario(){
-  const name=document.getElementById('f_name').value.trim();
-  if(!name){alert('シナリオ名を入力してください');return;}
-  const row={
-    id: editingIdx!==null ? DATA[editingIdx].id : Date.now().toString(),
-    ninzu: document.getElementById('f_ninzu').value,
-    name,
-    url: document.getElementById('f_url').value.trim(),
-    ho: document.getElementById('f_ho').value.trim(),
-    memo: document.getElementById('f_memo').value.trim(),
-    hot: document.getElementById('f_hot').checked,
+<footer id="footer" style="display:none;">
+  <button class="tab-btn" data-view="ALL">ALL</button>
+  <button class="tab-btn active" data-view="main">main</button>
+  <button class="tab-btn" data-view="CUSTOM">CUSTOM</button>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <span>メニュー</span>
+    <button class="close-x" id="closeMenu" aria-label="閉じる">×</button>
+  </div>
+  <div class="drawer-body">
+    <div class="section" id="saveSection">
+      <h3>保存</h3>
+      <button class="block-btn" id="saveBtn" disabled>HTMLで保存</button>
+      <p class="block-note">タブ・表示形式・テーマの切り替え機能を保持したまま、単体で開けるHTMLとして書き出します。</p>
+    </div>
+    <div class="section">
+      <h3>表示形式</h3>
+      <div class="seg" id="modeSeg">
+        <button data-mode="chat" class="active">名前<br>　本文</button>
+        <button data-mode="inline">名前　本文</button>
+      </div>
+    </div>
+    <div class="section">
+      <h3>テーマ</h3>
+      <div class="seg" id="themeSeg">
+        <button data-theme="light" class="active">ライト</button>
+        <button data-theme="dark">ダーク</button>
+      </div>
+    </div>
+    <div class="section">
+      <h3>文字サイズ</h3>
+      <div class="seg" id="sizeSeg">
+        <button data-fs="sm" class="active">小</button>
+        <button data-fs="md">中</button>
+      </div>
+    </div>
+    <div class="section">
+      <h3>CUSTOMタブに表示するタブ</h3>
+      <div class="mini-actions">
+        <button id="selAll">すべて選択</button>
+        <button id="selNone">すべて解除</button>
+      </div>
+      <div class="check-list" id="tabChecks">
+        <span class="hint">ログ読み込み後に選択できます。</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script id="appScript">
+"use strict";
+(function () {
+  var state = {
+    messages: [],   // {color, tab, nameText, msgHtml}
+    tabs: [],
+    tabCounts: {},
+    view: "main",   // ALL | main | CUSTOM
+    mode: "chat",   // chat | inline
+    size: "sm",     // sm | md
+    custom: {}
   };
-  if(editingIdx!==null){ DATA[editingIdx]=row; }
-  else { DATA.push(row); }
-  closeEditDirect();
-  const token=getGHToken();
-  if(!token){alert('🔑 トークンを設定してください');render();return;}
-  showLoading(true);
-  try{ await apiSave(DATA); await loadFromGitHub(); }
-  catch(e){ alert('保存失敗: '+e.message); render(); }
-  showLoading(false);
-}
 
-async function deleteScenario(){
-  if(!confirm('「'+DATA[editingIdx].name+'」を削除しますか？')) return;
-  DATA.splice(editingIdx,1);
-  editingIdx=null;
-  closeEditDirect();
-  const token=getGHToken();
-  if(!token){render();return;}
-  showLoading(true);
-  try{ await apiSave(DATA); await loadFromGitHub(); }
-  catch(e){ alert('削除失敗: '+e.message); render(); }
-  showLoading(false);
-}
+  var FS_SCALE = { sm: 0.867, md: 1 };
 
-// ===== 認証 =====
-(function autoLogin(){
-  const s=getSession();
-  if(s&&s.email===ALLOWED_EMAIL){ currentUser=s.email; updateAuthUI(); }
-})();
+  var $ = function (id) { return document.getElementById(id); };
+  var log = $("log");
+  var footer = $("footer");
+  var emptyState = $("emptyState");
 
-function updateAuthUI(){
-  if(!IS_EDIT_MODE){ const b=document.getElementById('authBar'); if(b)b.remove(); render(); return; }
-  let bar=document.getElementById('authBar');
-  if(currentUser){
-    if(!bar){
-      bar=document.createElement('div');
-      bar.id='authBar';
-      bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9998;background:var(--surface2);border-bottom:1px solid var(--border);padding:4px 14px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-muted);';
-      document.body.appendChild(bar);
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  // approximate display width in full-width units (halfwidth chars count 0.5)
+  function nameEmWidth(s) {
+    var w = 0;
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i);
+      if (c < 0x100 || (c >= 0xFF61 && c <= 0xFFDC) || (c >= 0xFFE8 && c <= 0xFFEE)) w += 0.5;
+      else w += 1;
     }
-    bar.innerHTML=`<span style="flex:1;opacity:.6">ログイン中</span>
-      <button onclick="openTokenModal()" style="background:none;border:1px solid var(--accent);color:var(--accent);font-size:11px;padding:2px 10px;border-radius:6px;cursor:pointer;font-family:inherit">🔑 トークン設定</button>
-      <button onclick="doLogout()" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:2px 10px;border-radius:6px;cursor:pointer;font-family:inherit">ログアウト</button>`;
-    document.querySelector('header').style.marginTop='30px';
-  } else {
-    if(bar) bar.remove();
-    document.querySelector('header').style.marginTop='';
+    return w;
   }
-  render();
-}
 
-function requireLogin(cb){
-  if(!IS_EDIT_MODE) return;
-  if(currentUser){cb();return;}
-  loginCallback=cb;
-  showLoginForm();
-  document.getElementById('loginOverlay').classList.add('open');
-}
-function showLoginForm(){
-  document.getElementById('loginModalTitle').textContent='ログイン';
-  document.getElementById('loginBody').innerHTML=`
-    <div class="form-group"><label class="form-label">メールアドレス</label>
-      <input class="form-input" id="loginEmail" type="email" placeholder="example@mail.com"></div>
-    <div class="form-group"><label class="form-label">パスワード</label>
-      <input class="form-input" id="loginPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <div id="loginErr" style="color:var(--r18);font-size:12px;margin-bottom:8px;display:none"></div>
-    <div class="form-actions">
-      <button class="btn-cancel" onclick="closeLoginDirect()">キャンセル</button>
-      <button class="btn-save" onclick="doLogin()">ログイン</button>
-    </div>`;
-}
-function showLoginErr(m){ const e=document.getElementById('loginErr'); if(e){e.textContent=m;e.style.display='block';} }
-function closeLoginDirect(){ loginCallback=null; document.getElementById('loginOverlay').classList.remove('open'); }
+  function stripExt(n) { return n.replace(/\.[^.\/\\]+$/, ""); }
 
-async function doLogin(){
-  const email=(document.getElementById('loginEmail').value||'').trim().toLowerCase();
-  const pass=document.getElementById('loginPass').value||'';
-  if(!email||!pass){showLoginErr('入力してください');return;}
-  if(email!==ALLOWED_EMAIL){showLoginErr('このメールアドレスは登録されていません');return;}
-  if(pass.length<4){showLoginErr('パスワードは4文字以上');return;}
-  const h=await hashPass(pass);
-  const saved=getSavedHash();
-  if(!saved){ savePassHash(h); }
-  else if(saved!==h){showLoginErr('パスワードが違います');return;}
-  const token=crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now();
-  saveSession({email,token});
-  currentUser=email;
-  updateAuthUI();
-  closeLoginDirect();
-  if(loginCallback){const cb=loginCallback;loginCallback=null;cb();}
-}
-function doLogout(){ localStorage.removeItem(SESS_KEY); currentUser=null; updateAuthUI(); }
+  function setTitle(name) {
+    if (!name) return;
+    var t = $("appTitle"); if (t) t.textContent = name;
+    document.title = name;
+  }
 
-// 追加・編集にログイン要求
-const _origOpenAdd=openAddModal;
-window.openAddModal=()=>requireLogin(_origOpenAdd);
-const _origOpenEdit=openEditModalIdx;
-window.openEditModalIdx=(i)=>requireLogin(()=>_origOpenEdit(i));
+  // preserve only <br>, escape everything else
+  function nodeToSafeHtml(node) {
+    var out = "";
+    var kids = node.childNodes;
+    for (var i = 0; i < kids.length; i++) {
+      var n = kids[i];
+      if (n.nodeType === 3) out += escapeHtml(n.nodeValue);
+      else if (n.nodeType === 1 && n.tagName.toLowerCase() === "br") out += "<br>";
+      else if (n.nodeType === 1) out += nodeToSafeHtml(n);
+    }
+    return out.replace(/^\s+|\s+$/g, "");
+  }
 
-// トークン
-function openTokenModal(){ document.getElementById('tokenInput').value=getGHToken(); document.getElementById('tokenOverlay').classList.add('open'); }
-function saveToken(){
-  const t=document.getElementById('tokenInput').value.trim();
-  if(!t){alert('トークンを入力してください');return;}
-  saveGHToken(t);
-  document.getElementById('tokenOverlay').classList.remove('open');
-  loadFromGitHub();
-}
+  function extractTab(text) {
+    var m = text.match(/\[(.+?)\]/);
+    return m ? m[1].trim() : "その他";
+  }
 
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeEditDirect();closeLoginDirect();document.getElementById('tokenOverlay').classList.remove('open');}
-});
+  function parseLog(raw) {
+    var doc = new DOMParser().parseFromString(raw, "text/html");
+    var ps = doc.querySelectorAll("p");
+    var messages = [], tabs = [], counts = {};
+    ps.forEach(function (p) {
+      var spans = p.querySelectorAll("span");
+      if (spans.length < 3) return;
+      var style = p.getAttribute("style") || "";
+      var cm = style.match(/color\s*:\s*(#[0-9a-fA-F]{3,8}|rgb[^;]+)/);
+      var color = cm ? cm[1] : "";
+      var tab = extractTab(spans[0].textContent || "");
+      var nameText = (spans[1].textContent || "").replace(/^\s+|\s+$/g, "");
+      var msgHtml = nodeToSafeHtml(spans[spans.length - 1]);
+      messages.push({ color: color, tab: tab, nameText: nameText, msgHtml: msgHtml });
+      if (!(tab in counts)) { tabs.push(tab); counts[tab] = 0; }
+      counts[tab]++;
+    });
+    return { messages: messages, tabs: tabs, counts: counts };
+  }
 
+  // render one message per current mode
+  function renderMsg(m) {
+    var safeName = escapeHtml(m.nameText);
+    var colorStyle = m.color ? (' style="color:' + m.color + '"') : "";
+    if (state.mode === "chat") {
+      // only NAME colored; keep line breaks
+      return '<div class="msg-chat">' +
+               '<div class="name"' + colorStyle + '>' + safeName + '</div>' +
+               '<div class="text">' + m.msgHtml + '</div>' +
+             '</div>';
+    }
+    // inline: name AND text colored; line breaks removed; auto-shrink names past 9 chars
+    var flat = m.msgHtml.replace(/<br>/g, " ");
+    var wem = nameEmWidth(m.nameText);
+    var nameStyle = "";
+    if (wem > 9) {
+      nameStyle = ' style="font-size:calc(15px * var(--fs) * ' + (9 / wem).toFixed(3) + ')"';
+    }
+    return '<div class="msg-inline"' + colorStyle + '>' +
+             '<span class="name"' + nameStyle + '>' + safeName + '</span>' +
+             '<span class="text">' + flat + '</span>' +
+           '</div>';
+  }
 
-// 編集モード時：閲覧用URLボタン
-if (IS_EDIT_MODE) {
-  const hb = document.querySelector('.header-btns');
-  if (hb) {
-    const b = document.createElement('button');
-    b.className = 'add-btn';
-    b.textContent = '🔗 閲覧用URL';
-    b.onclick = () => {
-      const url = location.origin + location.pathname;
-      navigator.clipboard.writeText(url).then(()=>alert('閲覧用URLをコピーしました:\n'+url)).catch(()=>prompt('閲覧用URL', url));
+  function renderBox(tab, innerHtml) {
+    return '<div class="tabbox">' +
+             '<div class="tabbox-head">[' + escapeHtml(tab) + ']</div>' +
+             innerHtml +
+           '</div>';
+  }
+
+  // main -> flat, non-main -> grouped boxes (consecutive same tab). includeFn filters messages.
+  function renderFlow(includeFn) {
+    var parts = [], boxTab = null, boxInner = "";
+    function flush() {
+      if (boxTab !== null) { parts.push(renderBox(boxTab, boxInner)); boxTab = null; boxInner = ""; }
+    }
+    state.messages.forEach(function (m) {
+      if (!includeFn(m)) return;
+      if (m.tab === "main") { flush(); parts.push(renderMsg(m)); }
+      else {
+        if (boxTab !== m.tab) { flush(); boxTab = m.tab; boxInner = ""; }
+        boxInner += renderMsg(m);
+      }
+    });
+    flush();
+    return parts.join("");
+  }
+
+  function buildHtml() {
+    if (state.view === "main") {
+      return renderFlow(function (m) { return m.tab === "main"; })
+             || '<div class="empty">このタブに表示できるログはありません。</div>';
+    }
+    if (state.view === "CUSTOM") {
+      return renderFlow(function (m) { return !!state.custom[m.tab]; })
+             || '<div class="empty">CUSTOMに表示するタブが選択されていません。</div>';
+    }
+    // ALL
+    return renderFlow(function () { return true; })
+           || '<div class="empty">表示できるログはありません。</div>';
+  }
+
+  function render() {
+    if (!state.messages.length) return;
+    log.innerHTML = buildHtml();
+  }
+
+  function buildTabChecks() {
+    var box = $("tabChecks");
+    if (!state.tabs.length) { box.innerHTML = '<span class="hint">ログ読み込み後に選択できます。</span>'; return; }
+    var html = "";
+    state.tabs.forEach(function (t) {
+      var checked = state.custom[t] ? " checked" : "";
+      html += '<label class="check-item">' +
+                '<input type="checkbox" data-tab="' + escapeHtml(t) + '"' + checked + ' />' +
+                '<span>' + escapeHtml(t) + '</span>' +
+                '<span class="count">' + state.tabCounts[t] + '</span>' +
+              '</label>';
+    });
+    box.innerHTML = html;
+    box.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        state.custom[cb.getAttribute("data-tab")] = cb.checked;
+        if (state.view === "CUSTOM") render();
+      });
+    });
+  }
+
+  function setSegActive(id, attr, val) {
+    var seg = $(id); if (!seg) return;
+    seg.querySelectorAll("button").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute(attr) === val);
+    });
+  }
+
+  function applySize(sz) {
+    state.size = sz;
+    document.documentElement.style.setProperty("--fs", String(FS_SCALE[sz] || 1));
+    setSegActive("sizeSeg", "data-fs", sz);
+  }
+
+  function loadRaw(raw) {
+    var res = parseLog(raw);
+    if (!res.messages.length) {
+      $("statusHint").textContent = "ログを解析できませんでした。ccfolia / Tekey の書き出しHTMLか確認してください。";
+      return;
+    }
+    state.messages = res.messages;
+    state.tabs = res.tabs;
+    state.tabCounts = res.counts;
+    state.custom = {};
+    state.tabs.forEach(function (t) { state.custom[t] = true; });
+
+    emptyState.style.display = "none";
+    footer.style.display = "flex";
+    var sb = $("saveBtn"); if (sb) sb.disabled = false;
+    $("statusHint").textContent = res.messages.length + "件のログを読み込みました（タブ" + state.tabs.length + "種）。";
+
+    buildTabChecks();
+    render();
+    $("inputPanel").classList.add("collapsed");
+  }
+
+  /* ---------- functional HTML export ---------- */
+  function saveHtml() {
+    if (!state.messages.length) return;
+    var payload = {
+      messages: state.messages, tabs: state.tabs,
+      counts: state.tabCounts, mode: state.mode, size: state.size
     };
-    hb.insertBefore(b, hb.firstChild);
-  }
-}
+    // neutralize any tag-like content so the data cannot break out of <script>
+    var json = JSON.stringify(payload)
+                 .replace(/</g, "\\u003c").replace(/>/g, "\\u003e")
+                 .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 
-// ===== 初期化 =====
-if (IS_EDIT_MODE) document.body.classList.add('edit-mode');
-loadFromGitHub();
+    var bodyClone = document.body.cloneNode(true);
+    var lg = bodyClone.querySelector("#log"); if (lg) lg.innerHTML = "";
+    var tc = bodyClone.querySelector("#tabChecks"); if (tc) tc.innerHTML = "";
+    var ta = bodyClone.querySelector("#rawInput"); if (ta) ta.textContent = "";
+    var dr = bodyClone.querySelector("#drawer"); if (dr) { dr.classList.remove("open"); dr.setAttribute("aria-hidden", "true"); }
+    var ov = bodyClone.querySelector("#overlay"); if (ov) ov.classList.remove("open");
+
+    var appScript = bodyClone.querySelector("#appScript");
+    var dataScript = document.createElement("script");
+    dataScript.textContent = "window.__EMBEDDED_LOG__=" + json + ";";
+    appScript.parentNode.insertBefore(dataScript, appScript);
+
+    var themeAttr = (document.documentElement.getAttribute("data-theme") === "dark") ? ' data-theme="dark"' : "";
+    var headHtml = document.head.cloneNode(true).innerHTML;
+    var out = "<!DOCTYPE html>\n<html lang=\"ja\"" + themeAttr + ">\n<head>" +
+              headHtml + "</head>\n<body>" + bodyClone.innerHTML + "</body>\n</html>";
+
+    var blob = new Blob([out], { type: "text/html;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "ccfolia_log_formatted.html";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // load data baked into an exported file
+  function loadEmbedded(d) {
+    state.messages = d.messages; state.tabs = d.tabs; state.tabCounts = d.counts;
+    state.custom = {};
+    state.tabs.forEach(function (t) { state.custom[t] = true; });
+    if (d.mode) { state.mode = d.mode; setSegActive("modeSeg", "data-mode", d.mode); }
+    applySize(d.size || "sm");
+    setSegActive("themeSeg", "data-theme",
+      document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light");
+    emptyState.style.display = "none";
+    footer.style.display = "flex";
+    var ip = $("inputPanel"); if (ip) ip.style.display = "none";
+    var ss = $("saveSection"); if (ss) ss.style.display = "none";
+    buildTabChecks();
+    render();
+  }
+
+  /* ---------- events: input ---------- */
+  $("fileInput").addEventListener("change", function (e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () { $("rawInput").value = String(reader.result); setTitle(stripExt(f.name)); loadRaw($("rawInput").value); };
+    reader.readAsText(f);
+  });
+
+  $("formatBtn").addEventListener("click", function () {
+    var raw = $("rawInput").value.trim();
+    if (!raw) { $("statusHint").textContent = "ログを貼り付けるか、ファイルをドラッグ＆ドロップしてください。"; return; }
+    loadRaw(raw);
+  });
+
+  $("clearBtn").addEventListener("click", function () {
+    $("rawInput").value = "";
+    state.messages = []; state.tabs = []; state.tabCounts = {}; state.custom = {};
+    log.innerHTML = "";
+    emptyState.style.display = "";
+    footer.style.display = "none";
+    var sb = $("saveBtn"); if (sb) sb.disabled = true;
+    buildTabChecks();
+    $("statusHint").textContent = "成型前ログを貼り付け、またはここへファイルをドラッグ＆ドロップしてください。";
+    $("inputPanel").classList.remove("collapsed");
+  });
+
+  /* ---------- events: drag & drop onto the paste area ---------- */
+  (function () {
+    var ta = $("rawInput");
+    if (!ta) return;
+    ["dragenter", "dragover"].forEach(function (ev) {
+      ta.addEventListener(ev, function (e) {
+        e.preventDefault(); e.stopPropagation();
+        ta.classList.add("dragover");
+      });
+    });
+    ["dragleave", "dragend"].forEach(function (ev) {
+      ta.addEventListener(ev, function (e) {
+        e.preventDefault(); e.stopPropagation();
+        ta.classList.remove("dragover");
+      });
+    });
+    ta.addEventListener("drop", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      ta.classList.remove("dragover");
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function () { ta.value = String(reader.result); setTitle(stripExt(f.name)); loadRaw(ta.value); };
+      reader.readAsText(f);
+    });
+  })();
+
+  /* ---------- events: footer tabs ---------- */
+  footer.querySelectorAll(".tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      footer.querySelectorAll(".tab-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      state.view = btn.getAttribute("data-view");
+      render();
+      $("logWrap").scrollTop = 0;
+    });
+  });
+
+  /* ---------- events: menu ---------- */
+  function openMenu() { $("drawer").classList.add("open"); $("overlay").classList.add("open"); $("drawer").setAttribute("aria-hidden", "false"); }
+  function closeMenu() { $("drawer").classList.remove("open"); $("overlay").classList.remove("open"); $("drawer").setAttribute("aria-hidden", "true"); }
+  $("menuBtn").addEventListener("click", openMenu);
+  $("closeMenu").addEventListener("click", closeMenu);
+  $("overlay").addEventListener("click", closeMenu);
+
+  var sbtn = $("saveBtn"); if (sbtn) sbtn.addEventListener("click", saveHtml);
+
+  $("modeSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    setSegActive("modeSeg", "data-mode", b.getAttribute("data-mode"));
+    state.mode = b.getAttribute("data-mode");
+    render();
+  });
+
+  $("themeSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    setSegActive("themeSeg", "data-theme", b.getAttribute("data-theme"));
+    if (b.getAttribute("data-theme") === "dark") document.documentElement.setAttribute("data-theme", "dark");
+    else document.documentElement.removeAttribute("data-theme");
+  });
+
+  $("sizeSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    applySize(b.getAttribute("data-fs"));
+  });
+
+  $("selAll").addEventListener("click", function () {
+    state.tabs.forEach(function (t) { state.custom[t] = true; });
+    buildTabChecks(); if (state.view === "CUSTOM") render();
+  });
+  $("selNone").addEventListener("click", function () {
+    state.tabs.forEach(function (t) { state.custom[t] = false; });
+    buildTabChecks(); if (state.view === "CUSTOM") render();
+  });
+
+  /* ---------- init (exported file) ---------- */
+  if (window.__EMBEDDED_LOG__) {
+    try { loadEmbedded(window.__EMBEDDED_LOG__); } catch (err) {}
+  }
+})();
 </script>
 </body>
 </html>
